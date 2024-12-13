@@ -25,5 +25,5 @@
     "category": { "return": "./src/customTypes.js#Category" }
   },
   "srcDir": "./src/",
-  "dbUrl": "postgres://postgres:password@localhost/postgres"
+  "dbUrl": "postgresql://neondb_owner:vzBnReJA7o2G@ep-soft-bird-a5iqel4j.us-east-2.aws.neon.tech/neondb?sslmode=require"
 }

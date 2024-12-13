@@ -5,7 +5,7 @@ import { AsyncQueue } from '@pgtyped/wire';
 import chokidar from 'chokidar';
 import nun from 'nunjucks';
 
-import PiscinaPool from 'piscina';
+import { Piscina } from 'piscina';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { parseConfig, ParsedConfig, TransformConfig } from './config.js';
@@ -22,10 +22,10 @@ export interface TransformJob {
 }
 
 export class WorkerPool {
-  private pool: PiscinaPool;
+  private pool: Piscina;
 
   constructor(private readonly config: ParsedConfig) {
-    this.pool = new PiscinaPool({
+    this.pool = new Piscina({
       filename: new URL('./worker.js', import.meta.url).href,
       maxThreads: config.maxWorkerThreads,
       workerData: config,
