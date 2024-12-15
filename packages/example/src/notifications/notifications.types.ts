@@ -44,11 +44,11 @@ export type IGetAllNotificationsParams = void;
 
 /** 'GetAllNotifications' return type */
 export interface IGetAllNotificationsResult {
-  created_at: string | null;
-  id: number | null;
-  payload: Json | null;
-  type: notification_type | null;
-  user_id: number | null;
+  createdAt: string;
+  id: number;
+  payload: Json;
+  type: notification_type;
+  userId: number;
 }
 
 /** 'GetAllNotifications' query type */

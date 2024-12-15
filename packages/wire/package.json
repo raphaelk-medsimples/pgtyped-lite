@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped-lite/wire",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "type": "module",
   "exports": {
     ".": {

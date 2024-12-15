@@ -28,7 +28,41 @@ function mapQueryResultRows(rows: any[]): any[] {
       }
     }
   }
-  return rows;
+  return rows.map(snakeToCamel);
+}
+
+function snakeToCamel<T extends Record<string, unknown>>(
+  obj: T,
+  depth = 1,
+): any {
+  return !(obj instanceof Object) || depth === 0
+    ? obj
+    : Object.entries(obj).reduce((result, [key, val]) => {
+        return {
+          ...result,
+          [toCamelCaseString(key)]: Array.isArray(val)
+            ? val.map((e) => snakeToCamel(e, depth - 1))
+            : isObject(val)
+              ? snakeToCamel(val as Record<string, unknown>, depth - 1)
+              : val,
+        };
+        // biome-ignore lint/suspicious/noExplicitAny: as intended
+      }, {} as any);
+}
+
+function toCamelCaseString<T extends string>(str: T) {
+  return str.replace(/_(\w)/g, (_, c) =>
+    c ? c.toUpperCase() : '',
+  );
+}
+
+function isObject(item: any): boolean {
+  return (
+    item &&
+    typeof item === 'object' &&
+    !Array.isArray(item) &&
+    Object.prototype.toString.call(item) === '[object Object]'
+  );
 }
 
 /* Used for SQL-in-TS */
@@ -53,7 +87,11 @@ export class TaggedQuery<TTypePair extends { params: any; result: any }> {
         params as any,
       );
       const result = await connection.query(processedQuery, bindings);
-      return mapQueryResultRows(result.rows);
+      const parsedResult = mapQueryResultRows(result.rows);
+      if (this.query.name.endsWith('First')) {
+        return parsedResult[0];
+      }
+      return parsedResult;
     };
     this.stream = (params, connection) => {
       const { query: processedQuery, bindings } = processTSQueryAST(
@@ -110,7 +148,8 @@ export class PreparedQuery<TParamType, TResultType> {
         params as any,
       );
       const result = await connection.query(processedQuery, bindings);
-      return mapQueryResultRows(result.rows);
+      const parsedResult = mapQueryResultRows(result.rows);
+      return parsedResult;
     };
     this.stream = (params, connection) => {
       const { query: processedQuery, bindings } = processSQLQueryIR(
@@ -129,6 +168,28 @@ export class PreparedQuery<TParamType, TResultType> {
           await cursor.close();
         },
       };
+    };
+  }
+}
+
+/* Used for pure SQL */
+export class PreparedQueryFirst<TParamType, TResultType> {
+  public run: (
+    params: TParamType,
+    dbConnection: IDatabaseConnection,
+  ) => Promise<TResultType>;
+  private readonly queryIR: SQLQueryIR;
+
+  constructor(queryIR: SQLQueryIR) {
+    this.queryIR = queryIR;
+    this.run = async (params, connection) => {
+      const { query: processedQuery, bindings } = processSQLQueryIR(
+        this.queryIR,
+        params as any,
+      );
+      const result = await connection.query(processedQuery, bindings);
+      const parsedResult = mapQueryResultRows(result.rows);
+      return parsedResult[0];
     };
   }
 }

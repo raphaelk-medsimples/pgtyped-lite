@@ -155,7 +155,7 @@ export async function queryToTypeDeclarations(
     const removeNullability = lastCharacter === '!';
     if (
       (addNullability || nullable || nullable == null) &&
-      !removeNullability
+      !removeNullability && !config.disableNullability
     ) {
       tsTypeName += ' | null';
     }
@@ -377,11 +377,15 @@ export async function generateTypedecsFromFile(
 
 export function generateDeclarations(typeDecs: TypedQuery[]): string {
   let typeDeclarations = '';
+  let hasSql = false;
   for (const typeDec of typeDecs) {
     typeDeclarations += typeDec.typeDeclaration;
     if (typeDec.mode === 'ts') {
       continue;
+    } else {
+      hasSql = true;
     }
+
     const queryPP = typeDec.query.ast.statement.body
       .split('\n')
       .map((s: string) => ' * ' + s)
@@ -398,10 +402,30 @@ export function generateDeclarations(typeDecs: TypedQuery[]): string {
       ` */\n`;
     typeDeclarations +=
       `export const ${typeDec.query.name} = ` +
-      `new PreparedQuery<${typeDec.query.paramTypeAlias},${typeDec.query.returnTypeAlias}>` +
+      `new ${typeDec.query.name.endsWith('First') ? 'PreparedQueryFirst': 'PreparedQuery'}<${typeDec.query.paramTypeAlias},${typeDec.query.returnTypeAlias}>` +
       `(${typeDec.query.name}IR);\n\n\n`;
   }
-  return typeDeclarations;
+
+  let defaultDeclarations = `export default (db: IDatabaseConnection) => ({\n`;
+  for (const typeDec of typeDecs) {
+    if (typeDec.mode === 'ts') {
+      continue;
+    } else {
+      hasSql = true;
+    }
+    const typeDeclarationLines = typeDec.typeDeclaration.split('\n');
+    const paramsIsVoid = typeDeclarationLines[1].endsWith('void;');
+
+    if (paramsIsVoid) {
+      defaultDeclarations +=  `  ${typeDec.query.name}: () => ${typeDec.query.name}.run(undefined, db),\n`;
+    } else {
+      defaultDeclarations +=  `  ${typeDec.query.name}: (params: ${typeDec.query.paramTypeAlias}) => ${typeDec.query.name}.run(params, db),\n`;
+    }
+
+  }
+  defaultDeclarations += `});\n`;
+
+  return typeDeclarations + (hasSql ? defaultDeclarations : '');
 }
 
 export function generateDeclarationFile(typeDecSet: TypeDeclarationSet) {

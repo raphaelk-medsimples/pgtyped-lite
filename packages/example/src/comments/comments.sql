@@ -2,6 +2,9 @@
 /* @name GetAllComments */
 SELECT * FROM book_comments WHERE id = :id! OR user_id = :id;
 
+/* @name GetAllCommentsFirst */
+SELECT * FROM book_comments WHERE id = :id! OR user_id = :id;
+
 /* A query to get multiple comments */
 /*
   @name GetAllCommentsByIds

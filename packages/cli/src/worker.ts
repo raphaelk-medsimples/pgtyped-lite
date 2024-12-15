@@ -108,6 +108,16 @@ export async function getTypeDecs({
       { name: 'PreparedQuery', from: '@pgtyped-lite/runtime' },
       TypeScope.Return,
     );
+
+    types.use(
+      { name: 'PreparedQueryFirst', from: '@pgtyped-lite/runtime' },
+      TypeScope.Return,
+    );
+
+    types.use(
+      { name: 'IDatabaseConnection', from: '@pgtyped-lite/runtime' },
+      TypeScope.Return,
+    );
   }
   return await generateTypedecsFromFile(
     contents,

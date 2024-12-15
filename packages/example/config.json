@@ -19,5 +19,7 @@
     "category": { "return": "./src/customTypes.js#Category" }
   },
   "srcDir": "./src/",
+  "disableNullability": true,
+  "camelCaseColumnNames": true,
   "migrationsFile": "/home/issamuk/code/pgtyped/packages/example/sql/schema.sql"
 }

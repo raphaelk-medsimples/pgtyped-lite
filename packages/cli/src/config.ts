@@ -6,12 +6,8 @@ import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
 import { createRequire } from 'module';
 import { isAbsolute, join } from 'path';
-import tls from 'tls';
 import { DatabaseConfig, default as dbUrlModule } from 'ts-parse-database-url';
 import { TypeDefinition } from './types.js';
-
-// module import hack
-const { default: parseDatabaseUri } = dbUrlModule as any;
 
 const transformCodecProps = {
   include: t.string,
@@ -57,6 +53,7 @@ const configParser = t.type({
   failOnError: t.union([t.boolean, t.undefined]),
   camelCaseColumnNames: t.union([t.boolean, t.undefined]),
   hungarianNotation: t.union([t.boolean, t.undefined]),
+  disableNullability: t.union([t.boolean, t.undefined]),
   migrationsFile: t.string,
   typesOverrides: t.union([
     t.record(
@@ -80,37 +77,11 @@ export interface ParsedConfig {
   failOnError: boolean;
   camelCaseColumnNames: boolean;
   hungarianNotation: boolean;
+  disableNullability: boolean;
   transforms: IConfig['transforms'];
   srcDir: IConfig['srcDir'];
   typesOverrides: Record<string, Partial<TypeDefinition>>;
   migrationsFile: IConfig['migrationsFile'];
-}
-
-function merge<T>(base: T, ...overrides: Partial<T>[]): T {
-  return overrides.reduce<T>(
-    (acc, o) =>
-      Object.entries(o).reduce(
-        (oAcc, [k, v]) => (v ? { ...oAcc, [k]: v } : oAcc),
-        acc,
-      ),
-    { ...base },
-  );
-}
-
-function convertParsedURLToDBConfig({
-  host,
-  password,
-  user,
-  port,
-  database,
-}: DatabaseConfig) {
-  return {
-    host,
-    password,
-    user,
-    port,
-    dbName: database,
-  };
 }
 
 const require = createRequire(import.meta.url);
@@ -160,6 +131,7 @@ export function parseConfig(
     failOnError,
     camelCaseColumnNames,
     hungarianNotation,
+    disableNullability,
     typesOverrides,
     migrationsFile,
   } = configObject as IConfig;
@@ -195,6 +167,7 @@ export function parseConfig(
     failOnError: failOnError ?? false,
     camelCaseColumnNames: camelCaseColumnNames ?? false,
     hungarianNotation: hungarianNotation ?? true,
+    disableNullability: disableNullability ?? false,
     typesOverrides: parsedTypesOverrides,
     maxWorkerThreads,
     migrationsFile,

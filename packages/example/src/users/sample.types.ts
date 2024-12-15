@@ -8,13 +8,13 @@ export interface IGetUsersWithCommentsParams {
 /** 'GetUsersWithComments' return type */
 export interface IGetUsersWithCommentsResult {
   /** Age (in years) */
-  age: number | null;
-  email: string | null;
-  first_name: string | null;
-  id: number | null;
-  last_name: string | null;
-  registration_date: string | null;
-  user_name: string | null;
+  age: number;
+  email: string;
+  firstName: string;
+  id: number;
+  lastName: string;
+  registrationDate: string;
+  userName: string;
 }
 
 /** 'GetUsersWithComments' query type */
@@ -28,7 +28,7 @@ export type ISelectExistsQueryParams = void;
 
 /** 'SelectExistsQuery' return type */
 export interface ISelectExistsQueryResult {
-  isTransactionExists: boolean | null;
+  isTransactionExists: boolean;
 }
 
 /** 'SelectExistsQuery' query type */

@@ -81,6 +81,7 @@ export interface ParamIR {
   }[];
 }
 export interface QueryIR {
+  name: string;
   params: ParamIR[];
   statement: string;
   usedParamSet: QueryAST['usedParamSet'];
@@ -295,6 +296,7 @@ export function queryASTToIR(query: SQLQueryAST): SQLQueryIR {
   const { a: statementStart } = query.statement.loc;
 
   return {
+    name: query.name,
     usedParamSet: query.usedParamSet,
     params: query.params.map((param) => ({
       name: param.name,

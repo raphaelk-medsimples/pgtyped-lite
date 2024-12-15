@@ -1,5 +1,5 @@
 /** Types generated for queries found in "src/books/books.sql" */
-import { PreparedQuery } from '@pgtyped-lite/runtime';
+import { PreparedQuery, PreparedQueryFirst, IDatabaseConnection } from '@pgtyped-lite/runtime';
 
 import type { Category } from '../customTypes.js';
 
@@ -20,11 +20,11 @@ export interface IFindBookByIdParams {
 
 /** 'FindBookById' return type */
 export interface IFindBookByIdResult {
-  author_id: number | null;
-  categories: categoryArray | null;
-  id: number | null;
-  name: string | null;
-  rank: number | null;
+  authorId: number;
+  categories: categoryArray;
+  id: number;
+  name: string;
+  rank: number;
 }
 
 /** 'FindBookById' query type */
@@ -33,7 +33,7 @@ export interface IFindBookByIdQuery {
   result: IFindBookByIdResult;
 }
 
-const findBookByIdIR: any = {"usedParamSet":{"id":true},"params":[{"name":"id","required":false,"transform":{"type":"scalar"},"locs":[{"a":31,"b":33}]}],"statement":"SELECT * FROM books WHERE id = :id"};
+const findBookByIdIR: any = {"name":"FindBookById","usedParamSet":{"id":true},"params":[{"name":"id","required":false,"transform":{"type":"scalar"},"locs":[{"a":31,"b":33}]}],"statement":"SELECT * FROM books WHERE id = :id"};
 
 /**
  * Query generated from SQL:
@@ -51,11 +51,11 @@ export interface IFindBookByCategoryParams {
 
 /** 'FindBookByCategory' return type */
 export interface IFindBookByCategoryResult {
-  author_id: number | null;
-  categories: categoryArray | null;
-  id: number | null;
-  name: string | null;
-  rank: number | null;
+  authorId: number;
+  categories: categoryArray;
+  id: number;
+  name: string;
+  rank: number;
 }
 
 /** 'FindBookByCategory' query type */
@@ -64,7 +64,7 @@ export interface IFindBookByCategoryQuery {
   result: IFindBookByCategoryResult;
 }
 
-const findBookByCategoryIR: any = {"usedParamSet":{"category":true},"params":[{"name":"category","required":false,"transform":{"type":"scalar"},"locs":[{"a":26,"b":34}]}],"statement":"SELECT * FROM books WHERE :category = ANY(categories)"};
+const findBookByCategoryIR: any = {"name":"FindBookByCategory","usedParamSet":{"category":true},"params":[{"name":"category","required":false,"transform":{"type":"scalar"},"locs":[{"a":26,"b":34}]}],"statement":"SELECT * FROM books WHERE :category = ANY(categories)"};
 
 /**
  * Query generated from SQL:
@@ -83,8 +83,8 @@ export interface IFindBookNameOrRankParams {
 
 /** 'FindBookNameOrRank' return type */
 export interface IFindBookNameOrRankResult {
-  id: number | null;
-  name: string | null;
+  id: number;
+  name: string;
 }
 
 /** 'FindBookNameOrRank' query type */
@@ -93,7 +93,7 @@ export interface IFindBookNameOrRankQuery {
   result: IFindBookNameOrRankResult;
 }
 
-const findBookNameOrRankIR: any = {"usedParamSet":{"name":true,"rank":true},"params":[{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":41,"b":45}]},{"name":"rank","required":false,"transform":{"type":"scalar"},"locs":[{"a":57,"b":61}]}],"statement":"SELECT id, name\nFROM books\nWHERE (name = :name OR rank = :rank)"};
+const findBookNameOrRankIR: any = {"name":"FindBookNameOrRank","usedParamSet":{"name":true,"rank":true},"params":[{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":41,"b":45}]},{"name":"rank","required":false,"transform":{"type":"scalar"},"locs":[{"a":57,"b":61}]}],"statement":"SELECT id, name\nFROM books\nWHERE (name = :name OR rank = :rank)"};
 
 /**
  * Query generated from SQL:
@@ -111,11 +111,11 @@ export type IFindBookUnicodeParams = void;
 
 /** 'FindBookUnicode' return type */
 export interface IFindBookUnicodeResult {
-  author_id: number | null;
-  categories: categoryArray | null;
-  id: number | null;
-  name: string | null;
-  rank: number | null;
+  authorId: number;
+  categories: categoryArray;
+  id: number;
+  name: string;
+  rank: number;
 }
 
 /** 'FindBookUnicode' query type */
@@ -124,7 +124,7 @@ export interface IFindBookUnicodeQuery {
   result: IFindBookUnicodeResult;
 }
 
-const findBookUnicodeIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT * FROM books WHERE name = 'שקל'"};
+const findBookUnicodeIR: any = {"name":"FindBookUnicode","usedParamSet":{},"params":[],"statement":"SELECT * FROM books WHERE name = 'שקל'"};
 
 /**
  * Query generated from SQL:
@@ -147,7 +147,7 @@ export interface IInsertBooksParams {
 
 /** 'InsertBooks' return type */
 export interface IInsertBooksResult {
-  book_id: number | null;
+  bookId: number;
 }
 
 /** 'InsertBooks' query type */
@@ -156,7 +156,7 @@ export interface IInsertBooksQuery {
   result: IInsertBooksResult;
 }
 
-const insertBooksIR: any = {"usedParamSet":{"books":true},"params":[{"name":"books","required":false,"transform":{"type":"pick_array_spread","keys":[{"name":"rank","required":true},{"name":"name","required":true},{"name":"authorId","required":true},{"name":"categories","required":false}]},"locs":[{"a":61,"b":66}]}],"statement":"INSERT INTO books (rank, name, author_id, categories)\nVALUES :books RETURNING id as book_id"};
+const insertBooksIR: any = {"name":"InsertBooks","usedParamSet":{"books":true},"params":[{"name":"books","required":false,"transform":{"type":"pick_array_spread","keys":[{"name":"rank","required":true},{"name":"name","required":true},{"name":"authorId","required":true},{"name":"categories","required":false}]},"locs":[{"a":61,"b":66}]}],"statement":"INSERT INTO books (rank, name, author_id, categories)\nVALUES :books RETURNING id as book_id"};
 
 /**
  * Query generated from SQL:
@@ -183,7 +183,7 @@ export interface IUpdateBooksCustomQuery {
   result: IUpdateBooksCustomResult;
 }
 
-const updateBooksCustomIR: any = {"usedParamSet":{"rank":true,"id":true},"params":[{"name":"rank","required":false,"transform":{"type":"scalar"},"locs":[{"a":49,"b":53},{"a":95,"b":99}]},{"name":"id","required":true,"transform":{"type":"scalar"},"locs":[{"a":161,"b":164}]}],"statement":"UPDATE books\nSET\n    rank = (\n        CASE WHEN (:rank::int IS NOT NULL)\n                 THEN :rank\n             ELSE rank\n            END\n        )\nWHERE id = :id!"};
+const updateBooksCustomIR: any = {"name":"UpdateBooksCustom","usedParamSet":{"rank":true,"id":true},"params":[{"name":"rank","required":false,"transform":{"type":"scalar"},"locs":[{"a":49,"b":53},{"a":95,"b":99}]},{"name":"id","required":true,"transform":{"type":"scalar"},"locs":[{"a":161,"b":164}]}],"statement":"UPDATE books\nSET\n    rank = (\n        CASE WHEN (:rank::int IS NOT NULL)\n                 THEN :rank\n             ELSE rank\n            END\n        )\nWHERE id = :id!"};
 
 /**
  * Query generated from SQL:
@@ -218,7 +218,7 @@ export interface IUpdateBooksQuery {
   result: IUpdateBooksResult;
 }
 
-const updateBooksIR: any = {"usedParamSet":{"name":true,"rank":true,"id":true},"params":[{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":50,"b":54}]},{"name":"rank","required":false,"transform":{"type":"scalar"},"locs":[{"a":68,"b":72}]},{"name":"id","required":true,"transform":{"type":"scalar"},"locs":[{"a":85,"b":88}]}],"statement":"UPDATE books\n                     \nSET\n    name = :name,\n    rank = :rank\nWHERE id = :id!"};
+const updateBooksIR: any = {"name":"UpdateBooks","usedParamSet":{"name":true,"rank":true,"id":true},"params":[{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":50,"b":54}]},{"name":"rank","required":false,"transform":{"type":"scalar"},"locs":[{"a":68,"b":72}]},{"name":"id","required":true,"transform":{"type":"scalar"},"locs":[{"a":85,"b":88}]}],"statement":"UPDATE books\n                     \nSET\n    name = :name,\n    rank = :rank\nWHERE id = :id!"};
 
 /**
  * Query generated from SQL:
@@ -250,7 +250,7 @@ export interface IUpdateBooksRankNotNullQuery {
   result: IUpdateBooksRankNotNullResult;
 }
 
-const updateBooksRankNotNullIR: any = {"usedParamSet":{"rank":true,"name":true,"id":true},"params":[{"name":"rank","required":true,"transform":{"type":"scalar"},"locs":[{"a":28,"b":33}]},{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":47,"b":51}]},{"name":"id","required":true,"transform":{"type":"scalar"},"locs":[{"a":64,"b":67}]}],"statement":"UPDATE books\nSET\n    rank = :rank!,\n    name = :name\nWHERE id = :id!"};
+const updateBooksRankNotNullIR: any = {"name":"UpdateBooksRankNotNull","usedParamSet":{"rank":true,"name":true,"id":true},"params":[{"name":"rank","required":true,"transform":{"type":"scalar"},"locs":[{"a":28,"b":33}]},{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":47,"b":51}]},{"name":"id","required":true,"transform":{"type":"scalar"},"locs":[{"a":64,"b":67}]}],"statement":"UPDATE books\nSET\n    rank = :rank!,\n    name = :name\nWHERE id = :id!"};
 
 /**
  * Query generated from SQL:
@@ -272,11 +272,11 @@ export interface IGetBooksByAuthorNameParams {
 
 /** 'GetBooksByAuthorName' return type */
 export interface IGetBooksByAuthorNameResult {
-  author_id: number | null;
-  categories: categoryArray | null;
-  id: number | null;
-  name: string | null;
-  rank: number | null;
+  authorId: number;
+  categories: categoryArray;
+  id: number;
+  name: string;
+  rank: number;
 }
 
 /** 'GetBooksByAuthorName' query type */
@@ -285,7 +285,7 @@ export interface IGetBooksByAuthorNameQuery {
   result: IGetBooksByAuthorNameResult;
 }
 
-const getBooksByAuthorNameIR: any = {"usedParamSet":{"authorName":true},"params":[{"name":"authorName","required":true,"transform":{"type":"scalar"},"locs":[{"a":110,"b":121}]}],"statement":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName!"};
+const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","usedParamSet":{"authorName":true},"params":[{"name":"authorName","required":true,"transform":{"type":"scalar"},"locs":[{"a":110,"b":121}]}],"statement":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName!"};
 
 /**
  * Query generated from SQL:
@@ -305,7 +305,7 @@ export interface IAggregateEmailsAndTestParams {
 
 /** 'AggregateEmailsAndTest' return type */
 export interface IAggregateEmailsAndTestResult {
-  agetest: boolean | null;
+  agetest: boolean;
   emails: stringArray;
 }
 
@@ -315,7 +315,7 @@ export interface IAggregateEmailsAndTestQuery {
   result: IAggregateEmailsAndTestResult;
 }
 
-const aggregateEmailsAndTestIR: any = {"usedParamSet":{"testAges":true},"params":[{"name":"testAges","required":false,"transform":{"type":"scalar"},"locs":[{"a":55,"b":63}]}],"statement":"SELECT array_agg(email) as \"emails!\", array_agg(age) = :testAges as ageTest FROM users"};
+const aggregateEmailsAndTestIR: any = {"name":"AggregateEmailsAndTest","usedParamSet":{"testAges":true},"params":[{"name":"testAges","required":false,"transform":{"type":"scalar"},"locs":[{"a":55,"b":63}]}],"statement":"SELECT array_agg(email) as \"emails!\", array_agg(age) = :testAges as ageTest FROM users"};
 
 /**
  * Query generated from SQL:
@@ -331,7 +331,7 @@ export type IGetBooksParams = void;
 
 /** 'GetBooks' return type */
 export interface IGetBooksResult {
-  id: number | null;
+  id: number;
   name: string;
 }
 
@@ -341,7 +341,7 @@ export interface IGetBooksQuery {
   result: IGetBooksResult;
 }
 
-const getBooksIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT id, name as \"name!\" FROM books"};
+const getBooksIR: any = {"name":"GetBooks","usedParamSet":{},"params":[],"statement":"SELECT id, name as \"name!\" FROM books"};
 
 /**
  * Query generated from SQL:
@@ -357,7 +357,7 @@ export type ICountBooksParams = void;
 
 /** 'CountBooks' return type */
 export interface ICountBooksResult {
-  book_count: BigInt | null;
+  bookCount: BigInt;
 }
 
 /** 'CountBooks' query type */
@@ -366,7 +366,7 @@ export interface ICountBooksQuery {
   result: ICountBooksResult;
 }
 
-const countBooksIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT count(*) as book_count FROM books"};
+const countBooksIR: any = {"name":"CountBooks","usedParamSet":{},"params":[],"statement":"SELECT count(*) as book_count FROM books"};
 
 /**
  * Query generated from SQL:
@@ -382,8 +382,8 @@ export type IGetBookCountriesParams = void;
 
 /** 'GetBookCountries' return type */
 export interface IGetBookCountriesResult {
-  country: Iso31661Alpha2 | null;
-  id: number | null;
+  country: Iso31661Alpha2;
+  id: number;
 }
 
 /** 'GetBookCountries' query type */
@@ -392,7 +392,7 @@ export interface IGetBookCountriesQuery {
   result: IGetBookCountriesResult;
 }
 
-const getBookCountriesIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT * FROM book_country"};
+const getBookCountriesIR: any = {"name":"GetBookCountries","usedParamSet":{},"params":[],"statement":"SELECT * FROM book_country"};
 
 /**
  * Query generated from SQL:
@@ -403,3 +403,18 @@ const getBookCountriesIR: any = {"usedParamSet":{},"params":[],"statement":"SELE
 export const getBookCountries = new PreparedQuery<IGetBookCountriesParams,IGetBookCountriesResult>(getBookCountriesIR);
 
 
+export default (db: IDatabaseConnection) => ({
+  findBookById: (params: IFindBookByIdParams) => findBookById.run(params, db),
+  findBookByCategory: (params: IFindBookByCategoryParams) => findBookByCategory.run(params, db),
+  findBookNameOrRank: (params: IFindBookNameOrRankParams) => findBookNameOrRank.run(params, db),
+  findBookUnicode: () => findBookUnicode.run(undefined, db),
+  insertBooks: (params: IInsertBooksParams) => insertBooks.run(params, db),
+  updateBooksCustom: (params: IUpdateBooksCustomParams) => updateBooksCustom.run(params, db),
+  updateBooks: (params: IUpdateBooksParams) => updateBooks.run(params, db),
+  updateBooksRankNotNull: (params: IUpdateBooksRankNotNullParams) => updateBooksRankNotNull.run(params, db),
+  getBooksByAuthorName: (params: IGetBooksByAuthorNameParams) => getBooksByAuthorName.run(params, db),
+  aggregateEmailsAndTest: (params: IAggregateEmailsAndTestParams) => aggregateEmailsAndTest.run(params, db),
+  getBooks: () => getBooks.run(undefined, db),
+  countBooks: () => countBooks.run(undefined, db),
+  getBookCountries: () => getBookCountries.run(undefined, db),
+});
