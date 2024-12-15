@@ -127,9 +127,12 @@ export class TypedSqlTagTransformer {
     return this.generateTypedSQLTagFile(Object.values(this.cache));
   }
 
-  private contentStart = `import { ${this.transform.functionName} as sourceSql } from '@pgtyped/runtime';\n\n`;
+  //@ts-ignore
+  private contentStart = `import { ${this.transform.functionName} as sourceSql } from '@pgtyped-lite/runtime';\n\n`;
   private contentEnd = [
+    //@ts-ignore
     `export function ${this.transform.functionName}(s: string): unknown;`,
+    //@ts-ignore
     `export function ${this.transform.functionName}(s: string): unknown {`,
     `  return sourceSql([s] as any);`,
     `}`,

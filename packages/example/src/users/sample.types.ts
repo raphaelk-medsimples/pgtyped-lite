@@ -9,12 +9,12 @@ export interface IGetUsersWithCommentsParams {
 export interface IGetUsersWithCommentsResult {
   /** Age (in years) */
   age: number | null;
-  email: string;
+  email: string | null;
   first_name: string | null;
-  id: number;
+  id: number | null;
   last_name: string | null;
-  registration_date: string;
-  user_name: string;
+  registration_date: string | null;
+  user_name: string | null;
 }
 
 /** 'GetUsersWithComments' query type */

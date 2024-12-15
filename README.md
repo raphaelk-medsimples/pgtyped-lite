@@ -26,8 +26,8 @@ Visit our documentation page at [https://pgtyped.dev/](https://pgtyped.dev/)
 
 ### Getting started
 
-1. `npm install -D @pgtyped/cli typescript` (typescript is a required peer dependency for pgtyped)
-2. `npm install @pgtyped/runtime` (`@pgtyped/runtime` is the only required runtime dependency of pgtyped)
+1. `npm install -D @pgtyped-lite/cli typescript` (typescript is a required peer dependency for pgtyped)
+2. `npm install @pgtyped-lite/runtime` (`@pgtyped-lite/runtime` is the only required runtime dependency of pgtyped)
 3. Create a PgTyped `config.json` file.
 4. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
 

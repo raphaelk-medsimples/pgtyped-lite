@@ -1,6 +1,6 @@
 /** @fileoverview Config file parser */
 
-import { Type } from '@pgtyped/query';
+import { Type } from '@pgtyped-lite/query';
 import * as Either from 'fp-ts/lib/Either.js';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
@@ -57,18 +57,7 @@ const configParser = t.type({
   failOnError: t.union([t.boolean, t.undefined]),
   camelCaseColumnNames: t.union([t.boolean, t.undefined]),
   hungarianNotation: t.union([t.boolean, t.undefined]),
-  dbUrl: t.union([t.string, t.undefined]),
-  db: t.union([
-    t.type({
-      host: t.union([t.string, t.undefined]),
-      password: t.union([t.string, t.undefined]),
-      port: t.union([t.number, t.undefined]),
-      user: t.union([t.string, t.undefined]),
-      dbName: t.union([t.string, t.undefined]),
-      ssl: t.union([t.UnknownRecord, t.boolean, t.undefined]),
-    }),
-    t.undefined,
-  ]),
+  migrationsFile: t.string,
   typesOverrides: t.union([
     t.record(
       t.string,
@@ -87,14 +76,6 @@ const configParser = t.type({
 export type IConfig = typeof configParser._O;
 
 export interface ParsedConfig {
-  db: {
-    host: string;
-    user: string;
-    password: string | undefined;
-    dbName: string;
-    port: number;
-    ssl?: tls.ConnectionOptions | boolean;
-  };
   maxWorkerThreads: number | undefined;
   failOnError: boolean;
   camelCaseColumnNames: boolean;
@@ -102,6 +83,7 @@ export interface ParsedConfig {
   transforms: IConfig['transforms'];
   srcDir: IConfig['srcDir'];
   typesOverrides: Record<string, Partial<TypeDefinition>>;
+  migrationsFile: IConfig['migrationsFile'];
 }
 
 function merge<T>(base: T, ...overrides: Partial<T>[]): T {
@@ -161,7 +143,6 @@ export function stringToType(str: string): Type {
 
 export function parseConfig(
   path: string,
-  argConnectionUri?: string,
 ): ParsedConfig {
   const fullPath = isAbsolute(path) ? path : join(process.cwd(), path);
   const configObject = require(fullPath);
@@ -172,41 +153,16 @@ export function parseConfig(
     throw new Error(message[0]);
   }
 
-  const defaultDBConfig = {
-    host: '127.0.0.1',
-    user: 'postgres',
-    password: '',
-    dbName: 'postgres',
-    port: 5432,
-  };
-
-  const envDBConfig = {
-    host: process.env.PGHOST,
-    user: process.env.PGUSER,
-    password: process.env.PGPASSWORD,
-    dbName: process.env.PGDATABASE,
-    port: process.env.PGPORT ? Number(process.env.PGPORT) : undefined,
-    uri: process.env.PGURI ?? process.env.DATABASE_URL,
-  };
-
   const {
     maxWorkerThreads,
-    db = defaultDBConfig,
-    dbUrl: configDbUri,
     transforms,
     srcDir,
     failOnError,
     camelCaseColumnNames,
     hungarianNotation,
     typesOverrides,
+    migrationsFile,
   } = configObject as IConfig;
-
-  // CLI connectionUri flag takes precedence over the env and config one
-  const dbUri = argConnectionUri || envDBConfig.uri || configDbUri;
-
-  const urlDBConfig = dbUri
-    ? convertParsedURLToDBConfig(parseDatabaseUri(dbUri))
-    : {};
 
   if (transforms.some((tr) => tr.mode !== 'ts-implicit' && !!tr.emitFileName)) {
     // tslint:disable:no-console
@@ -214,8 +170,6 @@ export function parseConfig(
       'Warning: Setting "emitFileName" is deprecated. Consider using "emitTemplate" instead.',
     );
   }
-
-  const finalDBConfig = merge(defaultDBConfig, db, urlDBConfig, envDBConfig);
 
   const parsedTypesOverrides: Record<string, Partial<TypeDefinition>> = {};
 
@@ -236,7 +190,6 @@ export function parseConfig(
   }
 
   return {
-    db: finalDBConfig,
     transforms,
     srcDir,
     failOnError: failOnError ?? false,
@@ -244,5 +197,6 @@ export function parseConfig(
     hungarianNotation: hungarianNotation ?? true,
     typesOverrides: parsedTypesOverrides,
     maxWorkerThreads,
+    migrationsFile,
   };
 }

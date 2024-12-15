@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import { startup } from '@pgtyped/query';
-import { AsyncQueue } from '@pgtyped/wire';
 import chokidar from 'chokidar';
 import nun from 'nunjucks';
 
@@ -66,11 +64,7 @@ async function main(
   fileOverride?: string,
 ) {
   const config = await cfg;
-  const connection = new AsyncQueue();
   debug('starting codegenerator');
-  await startup(config.db, connection);
-
-  debug('connected to database %o', config.db.dbName);
 
   const pool = new WorkerPool(config);
 
@@ -153,10 +147,11 @@ try {
     console.log('Config file changed. Exiting.');
     process.exit();
   });
-  const config = parseConfig(configPath, connectionUri);
-  main(config, isWatchMode || false, fileOverride).catch((e) =>
+  const config = parseConfig(configPath);
+  main(config, isWatchMode || false, fileOverride).catch((e) => {
     debug('error in main: %o', e.message),
-  );
+    console.error(e);
+  });
 } catch (e) {
   console.error('Failed to parse config file:');
   console.error((e as any).message);

@@ -1,5 +1,3 @@
-import { startup } from '@pgtyped/query';
-import { AsyncQueue } from '@pgtyped/wire';
 import fs from 'fs-extra';
 import nun from 'nunjucks';
 import path from 'path';
@@ -10,13 +8,13 @@ import {
   generateTypedecsFromFile,
 } from './generator.js';
 import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
+import { PGlite } from '@electric-sql/pglite';
 
 // disable autoescape as it breaks windows paths
 // see https://github.com/adelsz/pgtyped/issues/519 for details
 nun.configure({ autoescape: false });
 
 let connected = false;
-const connection = new AsyncQueue();
 const config: ParsedConfig = worker.workerData;
 
 interface ExtendedParsedPath extends path.ParsedPath {
@@ -36,7 +34,6 @@ export type IWorkerResult =
 
 async function connectAndGetFileContents(fileName: string) {
   if (!connected) {
-    await startup(config.db, connection);
     connected = true;
   }
 
@@ -53,11 +50,14 @@ export async function getTypeDecs({
 }) {
   const contents = await connectAndGetFileContents(fileName);
   const types = new TypeAllocator(TypeMapping(config.typesOverrides));
-
+  const connection = new PGlite('memory://');
+  await connection.query('select 1');
+  await connection.exec(fs.readFileSync(config.migrationsFile).toString());
+  
   if (transform.mode === 'sql') {
     // Second parameter has no effect here, we could have used any value
     types.use(
-      { name: 'PreparedQuery', from: '@pgtyped/runtime' },
+      { name: 'PreparedQuery', from: '@pgtyped-lite/runtime' },
       TypeScope.Return,
     );
   }

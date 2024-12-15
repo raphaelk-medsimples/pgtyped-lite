@@ -1,16 +1,15 @@
-import { AsyncQueue, messages, PreparedObjectType } from '@pgtyped/wire';
 import crypto from 'crypto';
 import debugBase from 'debug';
-import * as tls from 'tls';
-import type { InterpolatedQuery, QueryParameter } from '@pgtyped/runtime';
-import {
-  checkServerFinalMessage,
-  createClientSASLContinueResponse,
-  createInitialSASLResponse,
-} from './sasl-helpers.js';
+import type { InterpolatedQuery, QueryParameter } from '@pgtyped-lite/runtime';
+
+import { ExecProtocolOptions, ExecProtocolResult, PGlite, QueryOptions } from "@electric-sql/pglite";
+
+import { serialize as serializeProtocol } from './pglite-pg-protocol/serializer.js';
+import type { ParameterDescriptionMessage, RowDescriptionMessage } from "./pglite-pg-protocol/messages.js";
+
 import { DatabaseTypeKind, isEnum, MappableType } from './type.js';
 
-const debugQuery = debugBase('client:query');
+const debug = debugBase('pg-query:actions');
 
 export const generateHash = (
   username: string,
@@ -25,133 +24,6 @@ export const generateHash = (
   result.update(salt);
   return 'md5' + result.digest('hex');
 };
-
-export async function startup(
-  options: {
-    host: string;
-    password?: string;
-    port: number;
-    user: string;
-    dbName: string;
-    ssl?: tls.ConnectionOptions | boolean;
-  },
-  queue: AsyncQueue,
-) {
-  try {
-    await queue.connect(options);
-    const startupParams = {
-      user: options.user,
-      database: options.dbName,
-      client_encoding: "'utf-8'",
-    };
-    await queue.send(messages.startupMessage, { params: startupParams });
-    const result = await queue.reply(
-      messages.readyForQuery,
-      messages.authenticationCleartextPassword,
-      messages.authenticationMD5Password,
-      messages.authenticationSASL,
-    );
-    if ('trxStatus' in result) {
-      // No auth required
-      return;
-    }
-    if (!options.password) {
-      throw new Error('password required for hash auth');
-    }
-    let password = options.password;
-    if ('SASLMechanisms' in result) {
-      if (result.SASLMechanisms?.indexOf('SCRAM-SHA-256') === -1) {
-        throw new Error(
-          'SASL: Only mechanism SCRAM-SHA-256 is currently supported',
-        );
-      }
-
-      const { clientNonce, response: initialSASLResponse } =
-        createInitialSASLResponse();
-      await queue.send(messages.SASLInitialResponse, {
-        mechanism: 'SCRAM-SHA-256',
-        responseLength: Buffer.byteLength(initialSASLResponse),
-        response: initialSASLResponse,
-      });
-
-      const SASLContinueResult = await queue.reply(
-        messages.AuthenticationSASLContinue,
-      );
-
-      const { response: SASLContinueResponse, calculatedServerSignature } =
-        createClientSASLContinueResponse(
-          password,
-          clientNonce,
-          SASLContinueResult.SASLData,
-        );
-
-      await queue.send(messages.SASLResponse, {
-        response: SASLContinueResponse,
-      });
-
-      const finalSASL = await queue.reply(messages.authenticationSASLFinal);
-      await queue.reply(messages.authenticationOk);
-      while (true) {
-        const res = await queue.reply(
-          messages.parameterStatus,
-          messages.backendKeyData,
-          messages.readyForQuery,
-        );
-        // break when we get readyForQuery
-        if ('trxStatus' in res) {
-          break;
-        }
-      }
-
-      if ('SASLData' in finalSASL) {
-        checkServerFinalMessage(finalSASL.SASLData, calculatedServerSignature);
-        return;
-      } else {
-        throw new Error('SASL: No final SASL data returned');
-      }
-    }
-    if ('salt' in result) {
-      // hash password for md5 auth
-      password = generateHash(options.user, password, result.salt);
-    }
-    // handles both cleartext and md5 password auth
-    await queue.send(messages.passwordMessage, { password });
-    await queue.reply(messages.authenticationOk);
-    await queue.reply(messages.readyForQuery);
-  } catch (e) {
-    // tslint:disable-next-line:no-console
-    console.error(`Connection failed: ${(e as any).message}`);
-    process.exit(1);
-  }
-}
-
-export async function runQuery(query: string, queue: AsyncQueue) {
-  const resultRows = [];
-  await queue.send(messages.query, { query });
-  debugQuery('sent query %o', query);
-  {
-    const result = await queue.reply(messages.rowDescription);
-    debugQuery(
-      'received row description: %o',
-      result.fields.map((c) => c.name.toString()),
-    );
-  }
-  {
-    while (true) {
-      const result = await queue.reply(
-        messages.dataRow,
-        messages.commandComplete,
-      );
-      if ('commandTag' in result) {
-        break;
-      }
-      const row = result.columns.map((c) => c.value.toString());
-      resultRows.push(row);
-      debugQuery('received row data: %o', row);
-    }
-  }
-  return resultRows;
-}
 
 export interface IQueryTypes {
   paramMetadata: {
@@ -199,54 +71,11 @@ type TypeData =
  */
 export async function getTypeData(
   query: string,
-  queue: AsyncQueue,
+  db: PGlite,
 ): Promise<TypeData> {
-  const uniqueName = crypto.createHash('md5').update(query).digest('hex');
-  // Send all the messages needed and then flush
-  await queue.send(messages.parse, {
-    name: uniqueName,
-    query,
-    dataTypes: [],
-  });
-  await queue.send(messages.describe, {
-    name: uniqueName,
-    type: PreparedObjectType.Statement,
-  });
-  await queue.send(messages.close, {
-    target: PreparedObjectType.Statement,
-    targetName: uniqueName,
-  });
-  await queue.send(messages.flush, {});
+  const dbExt = pgliteExtension(db);
+  const { params, fields } = await dbExt.describeQuery(query);
 
-  const parseResult = await queue.reply(
-    messages.errorResponse,
-    messages.parseComplete,
-  );
-
-  // Recover server state from any errors
-  await queue.send(messages.sync, {});
-
-  if ('fields' in parseResult) {
-    // Error case
-    const { fields: errorFields } = parseResult;
-    return {
-      errorCode: errorFields.R,
-      hint: errorFields.H,
-      message: errorFields.M,
-      position: errorFields.P,
-    };
-  }
-  const paramsResult = await queue.reply(
-    messages.parameterDescription,
-    messages.noData,
-  );
-  const params = 'params' in paramsResult ? paramsResult.params : [];
-  const fieldsResult = await queue.reply(
-    messages.rowDescription,
-    messages.noData,
-  );
-  const fields = 'fields' in fieldsResult ? fieldsResult.fields : [];
-  await queue.reply(messages.closeComplete);
   return { params, fields };
 }
 
@@ -327,21 +156,24 @@ export function reduceTypeRows(
 // TODO: self-host
 async function runTypesCatalogQuery(
   typeOIDs: number[],
-  queue: AsyncQueue,
+  db: PGlite,
 ): Promise<TypeRow[]> {
   let rows: any[];
   if (typeOIDs.length > 0) {
     const concatenatedTypeOids = typeOIDs.join(',');
-    rows = await runQuery(
-      `
-SELECT pt.oid, pt.typname, pt.typtype, pe.enumlabel, pt.typelem, pt.typcategory
-FROM pg_type pt
-LEFT JOIN pg_enum pe ON pt.oid = pe.enumtypid
-WHERE pt.oid IN (${concatenatedTypeOids})
-OR pt.oid IN (SELECT typelem FROM pg_type ptn WHERE ptn.oid IN (${concatenatedTypeOids}));
-`,
-      queue,
-    );
+    rows = await db.query(`
+      SELECT pt.oid, pt.typname, pt.typtype, pe.enumlabel, pt.typelem, pt.typcategory
+      FROM pg_type pt
+      LEFT JOIN pg_enum pe ON pt.oid = pe.enumtypid
+      WHERE pt.oid IN (${concatenatedTypeOids})
+      OR pt.oid IN (SELECT typelem FROM pg_type ptn WHERE ptn.oid IN (${concatenatedTypeOids}));
+      `,
+      [],
+      { rowMode: 'array' }
+    ).then(({ rows }: { rows: any}) => { 
+      debug('runTypesCatalogQuery', { rows }); 
+      return rows; 
+    });
   } else {
     rows = [];
   }
@@ -365,7 +197,7 @@ interface ColumnComment {
 
 async function getComments(
   fields: TypeField[],
-  queue: AsyncQueue,
+  db: PGlite,
 ): Promise<ColumnComment[]> {
   const columnFields = fields.filter((f) => f.columnAttrNumber > 0);
   if (columnFields.length === 0) {
@@ -377,14 +209,18 @@ async function getComments(
   );
   const selection = matchers.join(' or ');
 
-  const descriptionRows = await runQuery(
+  const descriptionRows = await db.query(
     `SELECT
       objoid, objsubid, description
      FROM pg_description WHERE ${selection};`,
-    queue,
-  );
+     [],
+     { rowMode: 'array' }
+  ).then(({ rows }: { rows: any}) => { 
+    debug('getComments', { rows }); 
+    return rows; 
+  });
 
-  return descriptionRows.map((row) => ({
+  return descriptionRows.map((row: any) => ({
     tableOID: Number(row[0]),
     columnAttrNumber: Number(row[1]),
     comment: row[2],
@@ -393,9 +229,9 @@ async function getComments(
 
 export async function getTypes(
   queryData: InterpolatedQuery,
-  queue: AsyncQueue,
+  db: PGlite,
 ): Promise<IQueryTypes | IParseError> {
-  const typeData = await getTypeData(queryData.query, queue);
+  const typeData = await getTypeData(queryData.query, db);
   if ('errorCode' in typeData) {
     return typeData;
   }
@@ -405,8 +241,8 @@ export async function getTypes(
   const paramTypeOIDs = params.map((p) => p.oid);
   const returnTypesOIDs = fields.map((f) => f.typeOID);
   const usedTypesOIDs = paramTypeOIDs.concat(returnTypesOIDs);
-  const typeRows = await runTypesCatalogQuery(usedTypesOIDs, queue);
-  const commentRows = await getComments(fields, queue);
+  const typeRows = await runTypesCatalogQuery(usedTypesOIDs, db);
+  const commentRows = await getComments(fields, db);
   const typeMap = reduceTypeRows(typeRows);
 
   const attrMatcher = ({
@@ -420,19 +256,24 @@ export async function getTypes(
   const attrSelection =
     fields.length > 0 ? fields.map(attrMatcher).join(' or ') : false;
 
-  const attributeRows = await runQuery(
+  const attributeRows = await db.query(
     `SELECT
       (attrelid || ':' || attnum) AS attid, attname, attnotnull
      FROM pg_attribute WHERE ${attrSelection};`,
-    queue,
-  );
+     [],
+     { rowMode: 'array' }
+  ).then(({ rows }: { rows: any}) => { 
+    debug('getTypes', { rows }); 
+    return Array.from(rows) as any[]; 
+  });
+
   const attrMap: {
     [attid: string]: {
       columnName: string;
       nullable: boolean;
     };
   } = attributeRows.reduce(
-    (acc, [attid, attname, attnotnull]) => ({
+    (acc: any, [attid, attname, attnotnull]: any) => ({
       ...acc,
       [attid]: {
         columnName: attname,
@@ -463,4 +304,58 @@ export async function getTypes(
   };
 
   return { paramMetadata, returnTypes };
+}
+
+function pgliteExtension(db: PGlite) {
+  return {
+    async execProtocolNoSync(
+      message: Uint8Array,
+      options: ExecProtocolOptions = {},
+    ): Promise<ExecProtocolResult> {
+      return await db.execProtocol(message, { ...options, syncToFs: false })
+    },
+
+    async describeQuery(
+      query: string,
+      options?: QueryOptions,
+    ) {
+      try {
+        await this.execProtocolNoSync(
+          serializeProtocol.parse({ text: query, types: options?.paramTypes }),
+          options,
+        )
+  
+        const describeResults = await this.execProtocolNoSync(
+          serializeProtocol.describe({ type: 'S' }),
+          options,
+        )
+        const paramDescription = describeResults.messages.find(
+          (msg): msg is ParameterDescriptionMessage =>
+            msg.name === 'parameterDescription',
+        )
+        const resultDescription = describeResults.messages.find(
+          (msg): msg is RowDescriptionMessage => msg.name === 'rowDescription',
+        )
+  
+        const params =
+          paramDescription?.dataTypeIDs.map((dataTypeID) => ({
+            oid: dataTypeID,
+          })) ?? []
+  
+        const fields = resultDescription?.fields.map((field) => ({
+          name: field.name,
+          tableOID: field.tableID,
+          columnAttrNumber: field.columnID,
+          typeOID: field.dataTypeID,
+          typeSize: field.dataTypeSize,
+          typeModifier: field.dataTypeModifier,
+          formatCode: field.format,
+        })) ?? []
+  
+        return { params, fields }
+      } finally {
+        await this.execProtocolNoSync(serializeProtocol.sync(), options)
+      }
+    }
+  }
 }

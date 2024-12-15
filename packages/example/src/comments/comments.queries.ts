@@ -1,5 +1,5 @@
 /** Types generated for queries found in "src/comments/comments.sql" */
-import { PreparedQuery } from '@pgtyped/runtime';
+import { PreparedQuery } from '@pgtyped-lite/runtime';
 
 /** 'GetAllComments' parameters type */
 export interface IGetAllCommentsParams {
@@ -10,7 +10,7 @@ export interface IGetAllCommentsParams {
 export interface IGetAllCommentsResult {
   body: string | null;
   book_id: number | null;
-  id: number;
+  id: number | null;
   user_id: number | null;
 }
 
@@ -40,7 +40,7 @@ export interface IGetAllCommentsByIdsParams {
 export interface IGetAllCommentsByIdsResult {
   body: string | null;
   book_id: number | null;
-  id: number;
+  id: number | null;
   user_id: number | null;
 }
 
@@ -73,7 +73,7 @@ export interface IInsertCommentParams {
 export interface IInsertCommentResult {
   body: string | null;
   book_id: number | null;
-  id: number;
+  id: number | null;
   user_id: number | null;
 }
 

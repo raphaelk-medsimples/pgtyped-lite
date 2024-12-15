@@ -1,4 +1,4 @@
-## @pgtyped/cli
+## @pgtyped-lite/cli
 
 This package provides the `pgtyped` CLI.  
 The `pgtyped` CLI can work in build and watch mode.

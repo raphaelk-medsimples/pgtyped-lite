@@ -1,5 +1,5 @@
 {
-  "name": "@pgtyped/example",
+  "name": "@pgtyped-lite/example",
   "version": "2.3.1",
   "description": "A package demonstrating how pgtyped works.",
   "author": "Adel Salakh",
@@ -22,8 +22,8 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@pgtyped/cli": "^2.3.1",
-    "@pgtyped/query": "^2.3.1",
+    "@pgtyped-lite/cli": "^2.3.1",
+    "@pgtyped-lite/query": "^2.3.1",
     "expect": "29.7.0",
     "pg": "8.13.1",
     "typescript": "4.9.4"

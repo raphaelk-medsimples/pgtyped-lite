@@ -9,12 +9,6 @@
       "mode": "ts",
       "include": "**/*.ts",
       "emitTemplate": "{{dir}}/{{name}}.types.ts"
-    },
-    {
-      "mode": "ts-implicit",
-      "include": "index.test.ts",
-      "functionName": "sql",
-      "emitFileName": "./src/sql/index.ts"
     }
   ],
   "typesOverrides": {
@@ -25,5 +19,5 @@
     "category": { "return": "./src/customTypes.js#Category" }
   },
   "srcDir": "./src/",
-  "dbUrl": "postgresql://neondb_owner:vzBnReJA7o2G@ep-soft-bird-a5iqel4j.us-east-2.aws.neon.tech/neondb?sslmode=require"
+  "migrationsFile": "/home/issamuk/code/pgtyped/packages/example/sql/schema.sql"
 }

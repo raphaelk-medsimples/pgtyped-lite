@@ -1,4 +1,4 @@
-## @pgtyped/query
+## @pgtyped-lite/query
 
 This package provides protocol utilities for PgTyped queries.
 

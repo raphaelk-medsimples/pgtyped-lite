@@ -1,5 +1,5 @@
 {
-  "name": "@pgtyped/parser",
+  "name": "@pgtyped-lite/parser",
   "version": "2.3.0",
   "type": "module",
   "exports": {
@@ -19,7 +19,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/adelsz/pgtyped.git"
+    "url": "https://github.com/raphaelk-medsimples/pgtyped-lite"
   },
   "homepage": "https://github.com/adelsz/pgtyped",
   "publishConfig": {

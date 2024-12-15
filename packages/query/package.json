@@ -1,5 +1,5 @@
 {
-  "name": "@pgtyped/query",
+  "name": "@pgtyped-lite/query",
   "version": "2.3.1",
   "type": "module",
   "exports": {
@@ -21,7 +21,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/adelsz/pgtyped.git"
+    "url": "https://github.com/raphaelk-medsimples/pgtyped-lite"
   },
   "homepage": "https://github.com/adelsz/pgtyped",
   "publishConfig": {
@@ -34,13 +34,17 @@
     "watch": "tsc --watch --preserveWatchOutput"
   },
   "dependencies": {
-    "@pgtyped/runtime": "^2.3.1",
-    "@pgtyped/wire": "^2.3.1",
+    "@electric-sql/pglite": "^0.2.15",
+    "@pgtyped-lite/runtime": "^2.3.1",
+    "@pgtyped-lite/wire": "^2.3.1",
     "chalk": "^4.1.0",
     "debug": "^4.1.1"
   },
   "devDependencies": {
     "@types/chalk": "^2.2.0",
     "@types/debug": "^4.1.4"
+  },
+  "volta": {
+    "node": "22.12.0"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@pgtyped/cli",
+  "name": "@pgtyped-lite/cli",
   "version": "2.3.1",
   "type": "module",
   "main": "lib/index.js",
@@ -12,7 +12,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/adelsz/pgtyped.git"
+    "url": "git+https://github.com/raphaelk-medsimples/pgtyped-lite.git"
   },
   "files": [
     "lib"
@@ -34,9 +34,10 @@
     "pgtyped": "lib/index.js"
   },
   "dependencies": {
-    "@pgtyped/parser": "^2.3.0",
-    "@pgtyped/query": "^2.3.1",
-    "@pgtyped/wire": "^2.3.1",
+    "@electric-sql/pglite": "^0.2.15",
+    "@pgtyped-lite/parser": "^2.3.0",
+    "@pgtyped-lite/query": "^2.3.1",
+    "@pgtyped-lite/wire": "^2.3.1",
     "camel-case": "^5.0.0",
     "chalk": "^4.0.0",
     "chokidar": "^4.0.0",
@@ -61,5 +62,8 @@
   },
   "peerDependencies": {
     "typescript": "3.1 - 5"
+  },
+  "volta": {
+    "node": "22.12.0"
   }
 }

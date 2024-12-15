@@ -1,5 +1,5 @@
 /** Types generated for queries found in "src/notifications/notifications.sql" */
-import { PreparedQuery } from '@pgtyped/runtime';
+import { PreparedQuery } from '@pgtyped-lite/runtime';
 
 export type notification_type = 'deadline' | 'notification' | 'reminder';
 
@@ -18,7 +18,7 @@ export interface ISendNotificationsParams {
 
 /** 'SendNotifications' return type */
 export interface ISendNotificationsResult {
-  notification_id: number;
+  notification_id: number | null;
 }
 
 /** 'SendNotifications' query type */
@@ -47,10 +47,10 @@ export interface IGetNotificationsParams {
 
 /** 'GetNotifications' return type */
 export interface IGetNotificationsResult {
-  created_at: string;
-  id: number;
-  payload: Json;
-  type: notification_type;
+  created_at: string | null;
+  id: number | null;
+  payload: Json | null;
+  type: notification_type | null;
   user_id: number | null;
 }
 
@@ -81,9 +81,9 @@ export interface IThresholdFrogsParams {
 
 /** 'ThresholdFrogs' return type */
 export interface IThresholdFrogsResult {
-  payload: Json;
-  type: notification_type;
-  user_name: string;
+  payload: Json | null;
+  type: notification_type | null;
+  user_name: string | null;
 }
 
 /** 'ThresholdFrogs' query type */

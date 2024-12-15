@@ -1,5 +1,5 @@
 /** Types generated for queries found in "src/books/books.sql" */
-import { PreparedQuery } from '@pgtyped/runtime';
+import { PreparedQuery } from '@pgtyped-lite/runtime';
 
 import type { Category } from '../customTypes.js';
 
@@ -22,7 +22,7 @@ export interface IFindBookByIdParams {
 export interface IFindBookByIdResult {
   author_id: number | null;
   categories: categoryArray | null;
-  id: number;
+  id: number | null;
   name: string | null;
   rank: number | null;
 }
@@ -53,7 +53,7 @@ export interface IFindBookByCategoryParams {
 export interface IFindBookByCategoryResult {
   author_id: number | null;
   categories: categoryArray | null;
-  id: number;
+  id: number | null;
   name: string | null;
   rank: number | null;
 }
@@ -83,7 +83,7 @@ export interface IFindBookNameOrRankParams {
 
 /** 'FindBookNameOrRank' return type */
 export interface IFindBookNameOrRankResult {
-  id: number;
+  id: number | null;
   name: string | null;
 }
 
@@ -113,7 +113,7 @@ export type IFindBookUnicodeParams = void;
 export interface IFindBookUnicodeResult {
   author_id: number | null;
   categories: categoryArray | null;
-  id: number;
+  id: number | null;
   name: string | null;
   rank: number | null;
 }
@@ -147,7 +147,7 @@ export interface IInsertBooksParams {
 
 /** 'InsertBooks' return type */
 export interface IInsertBooksResult {
-  book_id: number;
+  book_id: number | null;
 }
 
 /** 'InsertBooks' query type */
@@ -274,7 +274,7 @@ export interface IGetBooksByAuthorNameParams {
 export interface IGetBooksByAuthorNameResult {
   author_id: number | null;
   categories: categoryArray | null;
-  id: number;
+  id: number | null;
   name: string | null;
   rank: number | null;
 }
@@ -331,7 +331,7 @@ export type IGetBooksParams = void;
 
 /** 'GetBooks' return type */
 export interface IGetBooksResult {
-  id: number;
+  id: number | null;
   name: string;
 }
 
@@ -382,8 +382,8 @@ export type IGetBookCountriesParams = void;
 
 /** 'GetBookCountries' return type */
 export interface IGetBookCountriesResult {
-  country: Iso31661Alpha2;
-  id: number;
+  country: Iso31661Alpha2 | null;
+  id: number | null;
 }
 
 /** 'GetBookCountries' query type */

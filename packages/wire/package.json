@@ -1,5 +1,5 @@
 {
-  "name": "@pgtyped/wire",
+  "name": "@pgtyped-lite/wire",
   "version": "2.3.1",
   "type": "module",
   "exports": {
@@ -13,7 +13,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/adelsz/pgtyped.git"
+    "url": "https://github.com/raphaelk-medsimples/pgtyped-lite"
   },
   "homepage": "https://github.com/adelsz/pgtyped",
   "publishConfig": {
@@ -24,15 +24,23 @@
   ],
   "scripts": {
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "tst": "globstar --node -- node --import tsx --test",
     "build": "tsc",
     "check": "tsc --noEmit",
     "watch": "tsc --watch --preserveWatchOutput"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.2.15",
     "debug": "^4.1.1"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",
-    "@types/node": "22.8.6"
+    "@types/node": "22.8.6",
+    "expect": "^29.7.0",
+    "globstar": "^1.0.0",
+    "tsx": "^4.19.2"
+  },
+  "volta": {
+    "node": "22.12.0"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@pgtyped/runtime",
+  "name": "@pgtyped-lite/runtime",
   "version": "2.3.1",
   "type": "module",
   "exports": {
@@ -24,7 +24,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/adelsz/pgtyped.git"
+    "url": "https://github.com/raphaelk-medsimples/pgtyped-lite"
   },
   "homepage": "https://github.com/adelsz/pgtyped",
   "publishConfig": {
@@ -38,7 +38,7 @@
     "watch": "tsc --watch --preserveWatchOutput"
   },
   "dependencies": {
-    "@pgtyped/parser": "^2.3.0",
+    "@pgtyped-lite/parser": "^2.3.0",
     "chalk": "^4.1.0",
     "debug": "^4.1.1"
   },

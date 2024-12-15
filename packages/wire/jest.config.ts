@@ -1,6 +1,7 @@
 import type { Config } from 'jest';
 
 const config: Config = {
+  testEnvironment: "node",
   snapshotFormat: {
     escapeString: true,
     printBasicPrototype: true,

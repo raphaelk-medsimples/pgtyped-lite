@@ -1,4 +1,4 @@
-import { sql as sourceSql } from '@pgtyped/runtime';
+import { sql as sourceSql } from '@pgtyped-lite/runtime';
 
 import type { Category } from '../customTypes.js';
 

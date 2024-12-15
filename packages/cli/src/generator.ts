@@ -5,21 +5,22 @@ import {
   SQLQueryAST,
   SQLQueryIR,
   TSQueryAST,
-} from '@pgtyped/parser';
+} from '@pgtyped-lite/parser';
 
-import { getTypes, TypeSource } from '@pgtyped/query';
+import { getTypes, TypeSource } from '@pgtyped-lite/query';
 import {
   ParameterTransform,
   processSQLQueryIR,
   processTSQueryAST,
-} from '@pgtyped/runtime';
+} from '@pgtyped-lite/runtime';
 import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
 import path from 'path';
 import { ParsedConfig, TransformConfig } from './config.js';
 import { parseCode as parseTypescriptFile } from './parseTypescript.js';
 import { TypeAllocator, TypeDefinitions, TypeScope } from './types.js';
-import { IQueryTypes } from '@pgtyped/query/lib/actions.js';
+import { IQueryTypes } from '@pgtyped-lite/query/lib/actions.js';
+import { PGlite } from '@electric-sql/pglite';
 
 export enum ProcessingMode {
   SQL = 'sql-file',
@@ -294,7 +295,7 @@ export type TypeDeclarationSet = {
 export async function generateTypedecsFromFile(
   contents: string,
   fileName: string,
-  connection: any,
+  connection: PGlite,
   transform: TransformConfig,
   types: TypeAllocator,
   config: ParsedConfig,
