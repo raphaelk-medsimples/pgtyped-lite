@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped-lite/wire",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "type": "module",
   "exports": {
     ".": {
@@ -42,5 +42,6 @@
   },
   "volta": {
     "node": "22.12.0"
-  }
+  },
+  "gitHead": "5eb1559bc8b6f8943471864ab20ab920df755ddc"
 }

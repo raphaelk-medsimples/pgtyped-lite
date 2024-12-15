@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped-lite/cli",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -35,9 +35,9 @@
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.15",
-    "@pgtyped-lite/parser": "^2.4.0",
-    "@pgtyped-lite/query": "^2.4.0",
-    "@pgtyped-lite/wire": "^2.4.0",
+    "@pgtyped-lite/parser": "^2.4.1",
+    "@pgtyped-lite/query": "^2.4.1",
+    "@pgtyped-lite/wire": "^2.4.1",
     "camel-case": "^5.0.0",
     "chalk": "^4.0.0",
     "chokidar": "^4.0.0",
@@ -65,5 +65,6 @@
   },
   "volta": {
     "node": "22.12.0"
-  }
+  },
+  "gitHead": "5eb1559bc8b6f8943471864ab20ab920df755ddc"
 }
