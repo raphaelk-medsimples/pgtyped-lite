@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped-lite/runtime",
-  "version": "2.4.1",
+  "version": "2.4.3",
   "type": "module",
   "exports": {
     ".": {
@@ -38,7 +38,7 @@
     "watch": "tsc --watch --preserveWatchOutput"
   },
   "dependencies": {
-    "@pgtyped-lite/parser": "^2.4.1",
+    "@pgtyped-lite/parser": "^2.4.3",
     "chalk": "^4.1.0",
     "debug": "^4.1.1"
   },
