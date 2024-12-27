@@ -1,6 +1,6 @@
 {
   "name": "pgtyped-lite",
-  "version": "2.4.4",
+  "version": "2.4.5",
   "main": "index.js",
   "author": "Adel Salakh",
   "license": "MIT",
@@ -10,7 +10,8 @@
     "watch": "lerna run --parallel --stream watch -- --preserveWatchOutput",
     "lint": "tslint --project tsconfig.json -t verbose",
     "lint!": "npm run lint -- --fix",
-    "test": "npm run lint && lerna run --stream test"
+    "test": "npm run lint && lerna run --stream test",
+    "publish": "npm publish"
   },
   "workspaces": [
     "packages/*"
@@ -33,5 +34,6 @@
   },
   "volta": {
     "node": "22.12.0"
-  }
+  },
+  "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee"
 }
